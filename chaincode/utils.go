@@ -1,9 +1,15 @@
 package chaincode
 
+// HasBioDataInterface constraint for type that as Biodata type
+type HasBioDataInterface interface {
+	//HasBioData returns BioData type
+	HasBioData() BioData
+}
+
 // Key returns voter.Biodata.NationalID if voter.Biodata.DID is empty.
-func Key(voter Voter) string {
-	if voter.Biodata.DID != "" {
-		return voter.Biodata.NationalID
+func Key(entity HasBioDataInterface) string {
+	if entity.HasBioData().DID != "" {
+		return entity.HasBioData().NationalID
 	}
-	return voter.Biodata.DID
+	return entity.HasBioData().DID
 }

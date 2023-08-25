@@ -47,13 +47,21 @@ type Voter struct {
 	VoterPoliticalParty PoliticalParty
 }
 
+func (v Voter) HasBioData() BioData {
+	return v.Biodata
+}
+
 // Candidate struct. Candidate
 // is expected to be extended as demand requires.
 type Candidate struct {
-	CandidateID             string
 	BioData                 BioData
+	CandidateID             string
 	CandidatePoliticalParty PoliticalParty
 	Votes                   uint64
+}
+
+func (c Candidate) HasBioData() BioData {
+	return c.BioData
 }
 
 // PoliticalParty struct. PoliticalParty

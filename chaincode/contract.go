@@ -36,5 +36,23 @@ func (s *SmartContract) RegisterVoter(ctx contractapi.TransactionContextInterfac
 	return nil
 }
 
+func (s *SmartContract) RegisterCandidate(ctx contractapi.TransactionContextInterface, candidate Candidate) error {
+	extisting, err := ctx.GetStub().GetState(Key(candidate))
+	if err != nil {
+		return fmt.Errorf("unable to interact with world state: %v", err)
 
+	}
+	if extisting != nil {
+		return errors.New("candidate already registered")
+	}
+	candidateBytes, err := json.Marshal(candidate)
+	if err != nil {
+		return err
+	}
+	err = ctx.GetStub().PutState(Key(candidate), candidateBytes)
+	if err != nil {
+		return fmt.Errorf("unable to interact with world state: %v", err)
+	}
 
+	return nil
+}
