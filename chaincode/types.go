@@ -5,6 +5,8 @@ import "time"
 // BioData is the data  of any person that can or cannot vote. Biodata
 // is expected to be extended as demand requires.
 type BioData struct {
+	//DID Digital Identifier
+	DID         string
 	NationalID  string
 	FirstName   string
 	MiddleName  string
@@ -40,7 +42,7 @@ func (b *BioData) EligibilityToVote() bool {
 // Voter struct. Voter
 // is expected to be extended as demand requires.
 type Voter struct {
-	Biotdata            BioData
+	Biodata             BioData
 	VotedCandidateID    Candidate
 	VoterPoliticalParty PoliticalParty
 }
