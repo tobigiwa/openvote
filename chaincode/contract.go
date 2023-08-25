@@ -36,6 +36,8 @@ func (s *SmartContract) RegisterVoter(ctx contractapi.TransactionContextInterfac
 	return nil
 }
 
+// RegisterCandidate registers candidate to world state. candidate is
+// expected to be prepared by the backend.
 func (s *SmartContract) RegisterCandidate(ctx contractapi.TransactionContextInterface, candidate Candidate) error {
 	extisting, err := ctx.GetStub().GetState(Key(candidate))
 	if err != nil {
@@ -57,6 +59,8 @@ func (s *SmartContract) RegisterCandidate(ctx contractapi.TransactionContextInte
 	return nil
 }
 
+// RegisterElection registers election to world state. election is
+// expected to be prepared by the backend.
 func (s *SmartContract) RegisterElection(ctx contractapi.TransactionContextInterface, election Election) error {
 	extisting, err := ctx.GetStub().GetState(fmt.Sprint(election.ElectionYear))
 	if err != nil {
@@ -71,6 +75,29 @@ func (s *SmartContract) RegisterElection(ctx contractapi.TransactionContextInter
 		return err
 	}
 	err = ctx.GetStub().PutState(fmt.Sprint(election.ElectionYear), electionBytes)
+	if err != nil {
+		return fmt.Errorf("unable to interact with world state: %v", err)
+	}
+
+	return nil
+}
+
+// RegisterPoliticalParty registers politicalparty to world state. politicalparty is
+// expected to be prepared by the backend.
+func (s *SmartContract) RegisterPoliticalParty(ctx contractapi.TransactionContextInterface, politicalParty PoliticalParty) error {
+	extisting, err := ctx.GetStub().GetState(politicalParty.PartyID)
+	if err != nil {
+		return fmt.Errorf("unable to interact with world state: %v", err)
+
+	}
+	if extisting != nil {
+		return errors.New("politicalParty already registered")
+	}
+	politicalPartyBytes, err := json.Marshal(politicalParty)
+	if err != nil {
+		return err
+	}
+	err = ctx.GetStub().PutState(politicalParty.PartyID, politicalPartyBytes)
 	if err != nil {
 		return fmt.Errorf("unable to interact with world state: %v", err)
 	}
