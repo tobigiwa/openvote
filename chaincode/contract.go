@@ -14,7 +14,7 @@ type SmartContract struct {
 
 // RegisterVoter registers voter to world state. voter is
 // expected to be prepared by the backend.
-func (s *SmartContract) ResgisterVoter(ctx contractapi.TransactionContextInterface, voter Voter) error {
+func (s *SmartContract) RegisterVoter(ctx contractapi.TransactionContextInterface, voter Voter) error {
 
 	extisting, err := ctx.GetStub().GetState(Key(voter))
 	if err != nil {
@@ -35,5 +35,6 @@ func (s *SmartContract) ResgisterVoter(ctx contractapi.TransactionContextInterfa
 
 	return nil
 }
+
 
 
