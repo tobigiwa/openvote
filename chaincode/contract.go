@@ -7,7 +7,8 @@ import (
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
 
-// ITYPES enforces that only allowable types are passed to smartcontract methods.
+// ITYPES is a union set type constraint
+// that enforces only allowable types are passed to smartcontract methods.
 type ITYPES interface {
 	Voter | Candidate | Election | PoliticalParty
 }
@@ -140,22 +141,22 @@ func updateFunc[T ITYPES](ctx contractapi.TransactionContextInterface, key strin
 	return nil
 }
 
-// deleteVoter deletes voter from world state.
+// DeleteVoter deletes voter from world state.
 func (s *SmartContract) DeleteVoter(ctx contractapi.TransactionContextInterface, key string) error {
 	return deleteFunc[Voter](ctx, key)
 }
 
-// deleteCandidate deletes candidate from world state.
+// DeleteCandidate deletes candidate from world state.
 func (s *SmartContract) DeleteCandidate(ctx contractapi.TransactionContextInterface, key string) error {
 	return deleteFunc[Candidate](ctx, key)
 }
 
-// deleteElection deletes election from world state.
+// DeleteElection deletes election from world state.
 func (s *SmartContract) DeleteElection(ctx contractapi.TransactionContextInterface, key string) error {
 	return deleteFunc[Election](ctx, key)
 }
 
-// deletePoliticalParty deletes politicalparty from world state.
+// DeletePoliticalParty deletes politicalparty from world state.
 func (s *SmartContract) DeletePoliticalParty(ctx contractapi.TransactionContextInterface, key string) error {
 	return deleteFunc[PoliticalParty](ctx, key)
 }
@@ -174,4 +175,53 @@ func deleteFunc[T ITYPES](ctx contractapi.TransactionContextInterface, key strin
 		return fmt.Errorf("unable to interact with world state: %v", err)
 	}
 	return nil
+}
+
+// QueryAllVoter queryAlls voter from world state.Any error
+// encounter would return the function with a nil slice.
+func (s *SmartContract) QueryAllVoter(ctx contractapi.TransactionContextInterface) ([]Voter, error) {
+	return queryAllFunc[Voter](ctx)
+}
+
+// QueryAllCandidate queryAlls candidate from world state.Any error
+// encounter would return the function with a nil slice.
+func (s *SmartContract) QueryAllCandidate(ctx contractapi.TransactionContextInterface) ([]Candidate, error) {
+	return queryAllFunc[Candidate](ctx)
+}
+
+// QueryAllElection queryAlls election from world state. Any error
+// encounter would return the function with a nil slice.
+func (s *SmartContract) QueryAllElection(ctx contractapi.TransactionContextInterface) ([]Election, error) {
+	return queryAllFunc[Election](ctx)
+}
+
+// QueryAllPoliticalParty queryAlls politicalparty from world state. Any error
+// encounter would return the function with a nil slice.
+func (s *SmartContract) QueryAllPoliticalParty(ctx contractapi.TransactionContextInterface) ([]PoliticalParty, error) {
+	return queryAllFunc[PoliticalParty](ctx)
+}
+
+func queryAllFunc[T ITYPES](ctx contractapi.TransactionContextInterface) ([]T, error) {
+	startkey := ""
+	endKey := ""
+	container := []T{}
+	resultIterator, err := ctx.GetStub().GetStateByRange(startkey, endKey)
+	if err != nil {
+		// it is unclear from the function what err here denotes, I'll assume no data was fetched, so return
+		return nil, err
+	}
+	defer resultIterator.Close()
+	for resultIterator.HasNext() {
+		var result T
+		queryResponse, err := resultIterator.Next()
+		if err != nil {
+			return nil, err
+		}
+		err = json.Unmarshal(queryResponse.Value, result)
+		if err != nil {
+			return nil, err
+		}
+		container = append(container, result)
+	}
+	return container, nil
 }
