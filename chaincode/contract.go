@@ -7,7 +7,7 @@ import (
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
 
-// ITYPES enforces that only validated types are passed to smartcontract methods.
+// ITYPES enforces that only allowable types are passed to smartcontract methods.
 type ITYPES interface {
 	Voter | Candidate | Election | PoliticalParty
 }
@@ -134,6 +134,42 @@ func updateFunc[T ITYPES](ctx contractapi.TransactionContextInterface, key strin
 	}
 
 	err = ctx.GetStub().PutState(key, data)
+	if err != nil {
+		return fmt.Errorf("unable to interact with world state: %v", err)
+	}
+	return nil
+}
+
+// deleteVoter deletes voter from world state.
+func (s *SmartContract) DeleteVoter(ctx contractapi.TransactionContextInterface, key string) error {
+	return deleteFunc[Voter](ctx, key)
+}
+
+// deleteCandidate deletes candidate from world state.
+func (s *SmartContract) DeleteCandidate(ctx contractapi.TransactionContextInterface, key string) error {
+	return deleteFunc[Candidate](ctx, key)
+}
+
+// deleteElection deletes election from world state.
+func (s *SmartContract) DeleteElection(ctx contractapi.TransactionContextInterface, key string) error {
+	return deleteFunc[Election](ctx, key)
+}
+
+// deletePoliticalParty deletes politicalparty from world state.
+func (s *SmartContract) DeletePoliticalParty(ctx contractapi.TransactionContextInterface, key string) error {
+	return deleteFunc[PoliticalParty](ctx, key)
+}
+
+func deleteFunc[T ITYPES](ctx contractapi.TransactionContextInterface, key string) error {
+
+	extisting, err := ctx.GetStub().GetState(key)
+	if err != nil {
+		return fmt.Errorf("unable to interact with world state: %v", err)
+	}
+	if extisting == nil {
+		return fmt.Errorf("Cannot read world state with key %s. Does not exist", key)
+	}
+	err = ctx.GetStub().DelState(key)
 	if err != nil {
 		return fmt.Errorf("unable to interact with world state: %v", err)
 	}
