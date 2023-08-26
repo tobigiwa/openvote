@@ -57,3 +57,40 @@ func registerFunc[T ITYPES](ctx contractapi.TransactionContextInterface, key str
 	}
 	return nil
 }
+
+// QueryVoter querys voter from world state.
+func (s *SmartContract) QueryVoter(ctx contractapi.TransactionContextInterface, key string) (Voter, error) {
+	return queryFunc[Voter](ctx, key)
+}
+
+// QueryCandidate querys candidate from world state
+func (s *SmartContract) QueryCandidate(ctx contractapi.TransactionContextInterface, key string) (Candidate, error) {
+	return queryFunc[Candidate](ctx, key)
+}
+
+// QueryElection querys election from world state
+func (s *SmartContract) QueryElection(ctx contractapi.TransactionContextInterface, key string) (Election, error) {
+	return queryFunc[Election](ctx, key)
+}
+
+// QueryPoliticalParty querys politicalparty from world state.
+func (s *SmartContract) QueryPoliticalParty(ctx contractapi.TransactionContextInterface, key string) (PoliticalParty, error) {
+	return queryFunc[PoliticalParty](ctx, key)
+}
+
+func queryFunc[T ITYPES](ctx contractapi.TransactionContextInterface, key string) (T, error) {
+	var zeroValueOfITYPES T
+	var result T
+	extisting, err := ctx.GetStub().GetState(key)
+	if err != nil {
+		return zeroValueOfITYPES, fmt.Errorf("unable to interact with world state: %v", err)
+	}
+	if extisting == nil {
+		return zeroValueOfITYPES, fmt.Errorf("Cannot read world state with key %s. Does not exist", key)
+	}
+	err = json.Unmarshal(extisting, result)
+	if err != nil {
+		return zeroValueOfITYPES, err
+	}
+	return result, nil
+}
