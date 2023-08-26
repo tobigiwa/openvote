@@ -47,11 +47,11 @@ func registerFunc[T ITYPES](ctx contractapi.TransactionContextInterface, key str
 	if extisting != nil {
 		return fmt.Errorf("%s already registered", operation)
 	}
-	Bytes, err := json.Marshal(body)
+	bytes, err := json.Marshal(body)
 	if err != nil {
 		return err
 	}
-	err = ctx.GetStub().PutState(key, Bytes)
+	err = ctx.GetStub().PutState(key, bytes)
 	if err != nil {
 		return fmt.Errorf("unable to interact with world state: %v", err)
 	}
@@ -79,6 +79,7 @@ func (s *SmartContract) QueryPoliticalParty(ctx contractapi.TransactionContextIn
 }
 
 func queryFunc[T ITYPES](ctx contractapi.TransactionContextInterface, key string) (T, error) {
+
 	var zeroValueOfITYPES T
 	var result T
 	extisting, err := ctx.GetStub().GetState(key)
@@ -93,4 +94,44 @@ func queryFunc[T ITYPES](ctx contractapi.TransactionContextInterface, key string
 		return zeroValueOfITYPES, err
 	}
 	return result, nil
+}
+
+// updateVoter updates voter from world state.
+func (s *SmartContract) UpdateVoter(ctx contractapi.TransactionContextInterface, voter Voter) error {
+	return updateFunc[Voter](ctx, Key(voter), voter)
+}
+
+// updateCandidate updates candidate from world state
+func (s *SmartContract) UpdateCandidate(ctx contractapi.TransactionContextInterface, key string, candidate Candidate) error {
+	return updateFunc[Candidate](ctx, Key(candidate), candidate)
+}
+
+// updateElection updates election from world state
+func (s *SmartContract) UpdateElection(ctx contractapi.TransactionContextInterface, key string, election Election) error {
+	return updateFunc[Election](ctx, fmt.Sprint(election.ElectionYear), election)
+}
+
+// updatePoliticalParty updates politicalparty from world state.
+func (s *SmartContract) UpdatePoliticalParty(ctx contractapi.TransactionContextInterface, politicalParty PoliticalParty) error {
+	return updateFunc[PoliticalParty](ctx, politicalParty.PartyID, politicalParty)
+}
+
+func updateFunc[T ITYPES](ctx contractapi.TransactionContextInterface, key string, update T) error {
+	extisting, err := ctx.GetStub().GetState(key)
+	if err != nil {
+		return fmt.Errorf("unable to interact with world state: %v", err)
+	}
+	if extisting == nil {
+		return fmt.Errorf("Cannot read world state with key %s. Does not exist", key)
+	}
+	data, err := json.Marshal(update)
+	if err != nil {
+		return err
+	}
+
+	err = ctx.GetStub().PutState(key, data)
+	if err != nil {
+		return fmt.Errorf("unable to interact with world state: %v", err)
+	}
+	return nil
 }
