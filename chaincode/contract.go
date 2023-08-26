@@ -63,12 +63,12 @@ func (s *SmartContract) QueryVoter(ctx contractapi.TransactionContextInterface, 
 	return queryFunc[Voter](ctx, key)
 }
 
-// QueryCandidate querys candidate from world state
+// QueryCandidate querys candidate from world state.
 func (s *SmartContract) QueryCandidate(ctx contractapi.TransactionContextInterface, key string) (Candidate, error) {
 	return queryFunc[Candidate](ctx, key)
 }
 
-// QueryElection querys election from world state
+// QueryElection querys election from world state.
 func (s *SmartContract) QueryElection(ctx contractapi.TransactionContextInterface, key string) (Election, error) {
 	return queryFunc[Election](ctx, key)
 }
@@ -96,22 +96,26 @@ func queryFunc[T ITYPES](ctx contractapi.TransactionContextInterface, key string
 	return result, nil
 }
 
-// updateVoter updates voter from world state.
+// updateVoter updates voter from world state. voter is
+// expected to be prepared by the backend.
 func (s *SmartContract) UpdateVoter(ctx contractapi.TransactionContextInterface, voter Voter) error {
 	return updateFunc[Voter](ctx, Key(voter), voter)
 }
 
-// updateCandidate updates candidate from world state
+// updateCandidate updates candidate from world state. candidate is
+// expected to be prepared by the backend.
 func (s *SmartContract) UpdateCandidate(ctx contractapi.TransactionContextInterface, key string, candidate Candidate) error {
 	return updateFunc[Candidate](ctx, Key(candidate), candidate)
 }
 
-// updateElection updates election from world state
+// updateElection updates election from world state. election is
+// expected to be prepared by the backend.
 func (s *SmartContract) UpdateElection(ctx contractapi.TransactionContextInterface, key string, election Election) error {
 	return updateFunc[Election](ctx, fmt.Sprint(election.ElectionYear), election)
 }
 
-// updatePoliticalParty updates politicalparty from world state.
+// updatePoliticalParty updates politicalparty from world state. politicalparty is
+// expected to be prepared by the backend.
 func (s *SmartContract) UpdatePoliticalParty(ctx contractapi.TransactionContextInterface, politicalParty PoliticalParty) error {
 	return updateFunc[PoliticalParty](ctx, politicalParty.PartyID, politicalParty)
 }
