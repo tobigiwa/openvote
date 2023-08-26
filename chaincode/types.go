@@ -83,3 +83,5 @@ type Election struct {
 	Contestants  []Candidate
 	Winner       map[Role]Candidate
 }
+
+
